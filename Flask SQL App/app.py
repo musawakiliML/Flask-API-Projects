@@ -1,4 +1,3 @@
-from crypt import methods
 from flask import Flask, make_response, jsonify, request
 from flask_sqlalchemy import SQLAlchemy
 from marshmallow_sqlalchemy import SQLAlchemySchema
@@ -22,30 +21,31 @@ with app.app_context():
         name = db.Column(db.String(20))
         age = db.Column(db.Integer)
         specialisation = db.Column(db.String(50))
-        
-        def create(self):
-            db.session.add(self)
-            db.session.commit()
-            return self
-        
+            
         def __init__(self, name, age, specialisation):
             self.name = name
             self.specialisation = specialisation
             self.age = age
             
+        def create(self):
+            db.session.add(self)
+            db.session.commit()
+            return self
+            
         def __repr__(self) -> str:
             return f'<Author {self.id}>'
+        
     db.create_all()
     
-class AuthorSchema(SQLAlchemySchema):
-    class Meta(SQLAlchemySchema.Meta):
-        model = Authors
-        sqla_session = db.session
-        
-    id = fields.Number(dump_only=True)
-    name = fields.String(required=True)
-    age = fields.Number(required=True)
-    specialisation = fields.String(required=True)
+    class AuthorSchema(SQLAlchemySchema):
+        class Meta(SQLAlchemySchema.Meta):
+            model = Authors
+            sqla_session = db.session
+            
+        id = fields.Number(dump_only=True)
+        name = fields.String(required=True)
+        age = fields.Number(required=True)
+        specialisation = fields.String(required=True)
     
  
  
