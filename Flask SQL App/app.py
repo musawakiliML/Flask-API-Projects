@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, current_app
 from flask_sqlalchemy import SQLAlchemy
 
 
@@ -8,21 +8,26 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:root1234@localhost
 # SQLITE config
 #app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////tmp/ 
 # <db_name>.db'
-app.app_context()
+
 db = SQLAlchemy(app)
 
-class Authors (db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(20))
-    specialisation = db.Column(db.String(50))
+with app.app_context():
     
-    def __init__(self, name, specialisation):
-        self.name = name
-        self.specialisation = specialisation
+    #print(current_app.name)
+    class Authors (db.Model):
+        id = db.Column(db.Integer, primary_key=True)
+        name = db.Column(db.String(20))
+        age = db.Column(db.Integer)
+        specialisation = db.Column(db.String(50))
         
-    def __repr__(self) -> str:
-        return f'<Product {self.id}>'
-db.create_all()
+        def __init__(self, name, age, specialisation):
+            self.name = name
+            self.specialisation = specialisation
+            self.age = age
+            
+        def __repr__(self) -> str:
+            return f'<Product {self.id}>'
+    db.create_all()
 
 if __name__ == "__main__":
     app.run(debug=True)
