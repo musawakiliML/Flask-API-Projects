@@ -17,11 +17,16 @@ db = SQLAlchemy(app)
 with app.app_context():
     
     #print(current_app.name)
-    class Authors (db.Model):
+    class Authors(db.Model):
         id = db.Column(db.Integer, primary_key=True)
         name = db.Column(db.String(20))
         age = db.Column(db.Integer)
         specialisation = db.Column(db.String(50))
+        
+        def create(self):
+            db.session.add(self)
+            db.session.commit()
+            return self
         
         def __init__(self, name, age, specialisation):
             self.name = name
@@ -29,7 +34,7 @@ with app.app_context():
             self.age = age
             
         def __repr__(self) -> str:
-            return f'<Product {self.id}>'
+            return f'<Author {self.id}>'
     db.create_all()
     
 class AuthorSchema(SQLAlchemySchema):
@@ -39,17 +44,28 @@ class AuthorSchema(SQLAlchemySchema):
         
     id = fields.Number(dump_only=True)
     name = fields.String(required=True)
-    age = fields.Number(dump_only=True)
+    age = fields.Number(required=True)
     specialisation = fields.String(required=True)
     
-    
+ 
+ 
+ # get request
 @app.route('/authors', methods=['GET'])
-def index():
+def get_authors():
     get_authors = Authors.query.all()
     author_schema = AuthorSchema(many=True)
     authors = author_schema.dump(get_authors)
     return make_response(jsonify({'authors':authors}))
 
+# Post request
+@app.route('/authors', methods=['POST'])
+def create_author():
+    data = request.get_json()
+    author_schema = AuthorSchema()
+    author = author_schema.load(data)
+    result = author_schema.dump(author.create()).data
+    return make_response(jsonify({'authors':result}, 200))
+    
 if __name__ == "__main__":
     app.run(debug=True)
     
